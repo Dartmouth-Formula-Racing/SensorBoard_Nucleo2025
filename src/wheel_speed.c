@@ -4,13 +4,16 @@
  * Description: defines all functions related to wheel speed calculation
  */
 
-#include "main.h"
 #include "wheel_speed.h"
 
-#define COUNTS_PER_REVOLUTION 2048 // there are 2048 counts per revolution but we double it because channel A and B get double tiks
+#include "main.h"
 
+#define COUNTS_PER_REVOLUTION \
+    2048  // there are 2048 counts per revolution but we double it because
+          // channel A and B get double tiks
 
-/*---------------------- Global constants for wheel speed calculating --------------------*/
+/*---------------------- Global constants for wheel speed calculating
+ * --------------------*/
 
 // // Keep track of current tik counts
 // volatile int32_t A_count_left;
@@ -24,32 +27,37 @@
 // int32_t last_B_left;
 // int32_t last_B_right;
 
-uint32_t last_left_count = 0;
-uint32_t last_right_count = 0;
-
-float calculate_left_velocity(uint32_t delta_t, uint32_t count){
-  uint32_t count_delta = (count - last_left_count);
-  last_left_count = count;
-  float left_velocity = ((float)count_delta / COUNTS_PER_REVOLUTION) * (1000 * 60 / delta_t);
-  return left_velocity;
+float calculate_left_velocity(uint32_t delta_t, uint32_t count) {
+    static uint32_t last_left_count = 0;
+    volatile int32_t count_delta = (count - last_left_count);
+    count_delta = count_delta > 0 ? count_delta : -1 * count_delta;
+    last_left_count = count;
+    volatile float left_velocity =
+        ((float)count_delta / COUNTS_PER_REVOLUTION) * (1000.0 * 60.0 / delta_t);
+    return left_velocity;
 }
 
-float calculate_right_velocity(uint32_t delta_t, uint32_t count){
-  uint32_t count_delta = (count - last_right_count);
-  last_right_count = count;
-  float right_velocity = ((float)count_delta / COUNTS_PER_REVOLUTION) * (1000 * 60 / delta_t);
-  return right_velocity;
+float calculate_right_velocity(uint32_t delta_t, uint32_t count) {
+    static uint32_t last_right_count = 0;
+    volatile int32_t count_delta = (count - last_right_count);
+    count_delta = count_delta > 0 ? count_delta : -1 * count_delta;
+    last_right_count = count;
+    volatile float right_velocity =
+        ((float)count_delta / COUNTS_PER_REVOLUTION) * (1000.0 * 60.0 / delta_t);
+    return right_velocity;
 }
 
-
-// /*---------------------- Functions for wheel speed calculating --------------------*/
+// /*---------------------- Functions for wheel speed calculating
+// --------------------*/
 
 // float calculate_left_velocity(uint32_t delta_t){
 //     // Calculate deltas and average in one step
-//     int32_t left_count_delta = ((A_count_left - last_A_left) + (B_count_left - last_B_left)) >> 2;
+//     int32_t left_count_delta = ((A_count_left - last_A_left) + (B_count_left
+//     - last_B_left)) >> 2;
 
 //     // Calculate RPM values directly from averaged counts
-//     float left_velocity = ((float)left_count_delta / COUNTS_PER_REVOLUTION) * (1000 * 60 / delta_t);
+//     float left_velocity = ((float)left_count_delta / COUNTS_PER_REVOLUTION) *
+//     (1000 * 60 / delta_t);
 
 //     // Store current count values for next run through
 //     last_A_left = A_count_left;
@@ -60,10 +68,12 @@ float calculate_right_velocity(uint32_t delta_t, uint32_t count){
 
 // float calculate_right_velocity(uint32_t delta_t){
 //     // Calculate deltas and average in one step
-//     int32_t right_count_delta = ((A_count_right - last_A_right) + (B_count_right - last_B_right)) >> 2;
+//     int32_t right_count_delta = ((A_count_right - last_A_right) +
+//     (B_count_right - last_B_right)) >> 2;
 
 //     // Calculate RPM values directly from averaged counts
-//     float right_velocity = ((float)right_count_delta / COUNTS_PER_REVOLUTION) * (1000 * 60 / delta_t);
+//     float right_velocity = ((float)right_count_delta / COUNTS_PER_REVOLUTION)
+//     * (1000 * 60 / delta_t);
 
 //     // Store current count values for next run through
 //     last_A_right = A_count_right;
@@ -72,18 +82,21 @@ float calculate_right_velocity(uint32_t delta_t, uint32_t count){
 //     return right_velocity; // return right wheel velocity in RPM
 // }
 
-
-// /* ----------- External hardware interrupt to count encoder tics in software ---------*/
-// void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
+// /* ----------- External hardware interrupt to count encoder tics in software
+// ---------*/ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 // {
 //   // Read current state of all pins (high or low) for quadrature
-//   uint8_t A_left_current = HAL_GPIO_ReadPin(A_left_tic_GPIO_Port, A_left_tic_Pin);
-//   uint8_t B_left_current = HAL_GPIO_ReadPin(B_left_tic_GPIO_Port, B_left_tic_Pin);
-//   uint8_t A_right_current = HAL_GPIO_ReadPin(A_right_tic_GPIO_Port, A_right_tic_Pin);
-//   uint8_t B_right_current = HAL_GPIO_ReadPin(B_right_tic_GPIO_Port, B_right_tic_Pin);
+//   uint8_t A_left_current = HAL_GPIO_ReadPin(A_left_tic_GPIO_Port,
+//   A_left_tic_Pin); uint8_t B_left_current =
+//   HAL_GPIO_ReadPin(B_left_tic_GPIO_Port, B_left_tic_Pin); uint8_t
+//   A_right_current = HAL_GPIO_ReadPin(A_right_tic_GPIO_Port, A_right_tic_Pin);
+//   uint8_t B_right_current = HAL_GPIO_ReadPin(B_right_tic_GPIO_Port,
+//   B_right_tic_Pin);
 
-//   // RIGHT SIDE: Counter-clockwise rotation has channel A leading channel B and is forward movement
-//   // LEFT SIDE: Clockwise rotation has channel A leading channel B and is forward movement
+//   // RIGHT SIDE: Counter-clockwise rotation has channel A leading channel B
+//   and is forward movement
+//   // LEFT SIDE: Clockwise rotation has channel A leading channel B and is
+//   forward movement
 
 //   // Edge trigger on A left wheel
 //   switch (GPIO_Pin)
@@ -160,4 +173,3 @@ float calculate_right_velocity(uint32_t delta_t, uint32_t count){
 //     break;
 //   }
 // }
-

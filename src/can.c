@@ -6,6 +6,7 @@
 
 
 #include "can.h"
+#include "main.h"
 // #include "main.h"
 #include "stm32f7xx_hal_can.h"
 
@@ -38,16 +39,16 @@ void send_can1(CAN_HandleTypeDef *can, float left_velocity, float right_velocity
     uint32_t tx_mailbox;
 
     // Bytes 0 - 3 left speed
-    data[0] = ((uint32_t)(left_velocity)) & 0xFF;
-    data[1] = (((uint32_t)(left_velocity)) >> 8) & 0xFF;
-    data[2] = (((uint32_t)(left_velocity)) >> 16) & 0xFF;
-    data[3] = (((uint32_t)(left_velocity)) >> 24) & 0xFF;
+    data[0] = (((uint32_t)(left_velocity)) >> 24) & 0xFF;
+    data[1] = (((uint32_t)(left_velocity)) >> 16) & 0xFF;
+    data[2] = (((uint32_t)(left_velocity)) >> 8) & 0xFF;
+    data[3] = ((uint32_t)(left_velocity)) & 0xFF;
 
     // Bytes 4 - 7 right speed
-    data[4] = ((uint32_t)(right_velocity)) & 0xFF;
-    data[5] = (((uint32_t)(right_velocity)) >> 8) & 0xFF;
-    data[6] = (((uint32_t)(right_velocity)) >> 16) & 0xFF;
-    data[7] = (((uint32_t)(right_velocity)) >> 24) & 0xFF;
+    data[4] = (((uint32_t)(right_velocity)) >> 24) & 0xFF;
+    data[5] = (((uint32_t)(right_velocity)) >> 16) & 0xFF;
+    data[6] = (((uint32_t)(right_velocity)) >> 8) & 0xFF;
+    data[7] = ((uint32_t)(right_velocity)) & 0xFF;
 
 
     // Actually send the bytes of data to CAN addresses
@@ -57,6 +58,17 @@ void send_can1(CAN_HandleTypeDef *can, float left_velocity, float right_velocity
         }
     }
 }
+
+// void Error_Handler(void)
+// {
+//   /* USER CODE BEGIN Error_Handler_Debug */
+//   /* User can add his own implementation to report the HAL error return state */
+//   __disable_irq();
+//   while (1)
+//   {
+//   }
+//   /* USER CODE END Error_Handler_Debug */
+// }
 
 // void send_can2(float left_velocity, float right_velocity){
     

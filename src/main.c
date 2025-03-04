@@ -21,13 +21,14 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "wheel_speed.h"
 #include "can.h"
+#include "wheel_speed.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
-
+#define SEND_INTERVAL 10
+#define RPM_SCALE_FACTOR 1000
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
@@ -101,6 +102,8 @@ int main(void) {
     volatile uint32_t count_left = 0;
     volatile uint32_t count_right = 0;
     volatile uint32_t last = 0;
+    volatile float lws = 0;
+    volatile float rws = 0;
     /* USER CODE END 2 */
 
     /* Infinite loop */
@@ -113,14 +116,14 @@ int main(void) {
 
         uint32_t now = HAL_GetTick();
 
-        if (now - last >= 10) {
-            count_left = __HAL_TIM_GetCounter(&htim3) / 4;
-            count_right = __HAL_TIM_GetCounter(&htim4) / 4;
+        if (now - last >= SEND_INTERVAL) {
+            count_left = __HAL_TIM_GetCounter(&htim4) / 4;
+            count_right = __HAL_TIM_GetCounter(&htim3) / 4;
 
-            float lws = calculate_left_velocity(now - last, count_left);
-            float rws = calculate_right_velocity(now - last, count_right);
+            lws = calculate_left_velocity(now - last, count_left);
+            rws = calculate_right_velocity(now - last, count_right);
 
-            send_can1(&hcan1, lws, rws);
+            send_can1(&hcan1, RPM_SCALE_FACTOR * lws, RPM_SCALE_FACTOR * rws);
 
             last = now;
         }
