@@ -9,6 +9,8 @@
 void send_can1(CAN_HandleTypeDef *can, float left_velocity, float right_velocity);
 // void send_can2(float left_velocity, float right_velocity);
 
+void send_can(CAN_HandleTypeDef *can, float left_velocity, float right_velocity, uint16_t offset);
+
 //void Error_Handler(void);
 
 // Function to initialize CAN communication

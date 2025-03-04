@@ -23,6 +23,7 @@
 /* USER CODE BEGIN Includes */
 #include "can.h"
 #include "wheel_speed.h"
+#include "filter.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -43,6 +44,7 @@
 
 /* Private variables ---------------------------------------------------------*/
 CAN_HandleTypeDef hcan1;
+CAN_HandleTypeDef hcan2;
 
 TIM_HandleTypeDef htim3;
 TIM_HandleTypeDef htim4;
@@ -57,6 +59,7 @@ static void MX_GPIO_Init(void);
 static void MX_TIM3_Init(void);
 static void MX_TIM4_Init(void);
 static void MX_CAN1_Init(void);
+static void MX_CAN2_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -98,12 +101,23 @@ int main(void) {
     MX_TIM3_Init();
     MX_TIM4_Init();
     MX_CAN1_Init();
+    MX_CAN2_Init();
+
     /* USER CODE BEGIN 2 */
     volatile uint32_t count_left = 0;
     volatile uint32_t count_right = 0;
     volatile uint32_t last = 0;
     volatile float lws = 0;
     volatile float rws = 0;
+    float filtered_lws = 0;
+    float filtered_rws = 0;
+
+    // Initialize IIR filter struct
+    IIR_filter left_IIR;
+    IIR_filter right_IIR;
+    IIR_filter_init(&left_IIR);
+    IIR_filter_init(&right_IIR);
+
     /* USER CODE END 2 */
 
     /* Infinite loop */
@@ -123,13 +137,14 @@ int main(void) {
             lws = calculate_left_velocity(now - last, count_left);
             rws = calculate_right_velocity(now - last, count_right);
 
-            send_can1(&hcan1, RPM_SCALE_FACTOR * lws, RPM_SCALE_FACTOR * rws);
+            filtered_lws = IIR_filter_update(&left_IIR, lws);
+            filtered_rws = IIR_filter_update(&right_IIR, rws);
+
+            send_can(&hcan1, RPM_SCALE_FACTOR * lws, RPM_SCALE_FACTOR * rws, 0);
+            send_can(&hcan1, RPM_SCALE_FACTOR * filtered_lws, RPM_SCALE_FACTOR * filtered_rws, 1);
 
             last = now;
         }
-        /* USER CODE END WHILE */
-
-        /* USER CODE BEGIN 3 */
     }
     /* USER CODE END 3 */
 }
@@ -229,6 +244,53 @@ static void MX_CAN1_Init(void) {
 
     // Start CAN peripheral
     if (HAL_CAN_Start(&hcan1) != HAL_OK) {
+        // Start Error
+        Error_Handler();
+    }
+    /* USER CODE END CAN1_Init 2 */
+}
+
+static void MX_CAN2_Init(void) {
+    /* USER CODE BEGIN CAN1_Init 0 */
+
+    /* USER CODE END CAN1_Init 0 */
+
+    /* USER CODE BEGIN CAN1_Init 1 */
+
+    /* USER CODE END CAN1_Init 1 */
+    hcan2.Instance = CAN2;
+    hcan2.Init.Prescaler = 6;
+    hcan2.Init.Mode = CAN_MODE_NORMAL;
+    hcan2.Init.SyncJumpWidth = CAN_SJW_1TQ;
+    hcan2.Init.TimeSeg1 = CAN_BS1_13TQ;
+    hcan2.Init.TimeSeg2 = CAN_BS2_2TQ;
+    hcan2.Init.TimeTriggeredMode = DISABLE;
+    hcan2.Init.AutoBusOff = ENABLE;
+    hcan2.Init.AutoWakeUp = ENABLE;
+    hcan2.Init.AutoRetransmission = ENABLE;
+    hcan2.Init.ReceiveFifoLocked = DISABLE;
+    hcan2.Init.TransmitFifoPriority = DISABLE;
+    if (HAL_CAN_Init(&hcan2) != HAL_OK) {
+        Error_Handler();
+    }
+    /* USER CODE BEGIN CAN1_Init 2 */
+    CAN_FilterTypeDef filter;
+    filter.FilterBank = 0;
+    filter.FilterMode = CAN_FILTERMODE_IDMASK;
+    filter.FilterScale = CAN_FILTERSCALE_32BIT;
+    filter.FilterIdHigh = 0x0000;
+    filter.FilterIdLow = 0x0000;
+    filter.FilterMaskIdHigh = 0x0000;
+    filter.FilterMaskIdLow = 0x0000;
+    filter.FilterFIFOAssignment = CAN_RX_FIFO0 | CAN_RX_FIFO1;
+    filter.FilterActivation = ENABLE;
+    filter.SlaveStartFilterBank = 14;
+    if (HAL_CAN_ConfigFilter(&hcan2, &filter) != HAL_OK) {
+        Error_Handler();
+    }
+
+    // Start CAN peripheral
+    if (HAL_CAN_Start(&hcan2) != HAL_OK) {
         // Start Error
         Error_Handler();
     }

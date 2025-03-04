@@ -8,8 +8,7 @@
 
 #include "main.h"
 
-#define COUNTS_PER_REVOLUTION \
-    2048  // there are 2048 counts per revolution but we double it because
+#define COUNTS_PER_REVOLUTION 2048  // there are 2048 counts per revolution but we double it because
           // channel A and B get double tiks
 
 /*---------------------- Global constants for wheel speed calculating
