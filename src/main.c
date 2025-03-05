@@ -49,6 +49,9 @@ CAN_HandleTypeDef hcan2;
 TIM_HandleTypeDef htim3;
 TIM_HandleTypeDef htim4;
 
+IIR_filter left_IIR;
+IIR_filter right_IIR;
+
 /* USER CODE BEGIN PV */
 
 /* USER CODE END PV */
@@ -60,48 +63,27 @@ static void MX_TIM3_Init(void);
 static void MX_TIM4_Init(void);
 static void MX_CAN1_Init(void);
 static void MX_CAN2_Init(void);
-/* USER CODE BEGIN PFP */
 
-/* USER CODE END PFP */
-
-/* Private user code ---------------------------------------------------------*/
-/* USER CODE BEGIN 0 */
-
-/* USER CODE END 0 */
 
 /**
  * @brief  The application entry point.
  * @retval int
  */
 int main(void) {
-    /* USER CODE BEGIN 1 */
-
-    /* USER CODE END 1 */
-
-    /* MCU
-     * Configuration--------------------------------------------------------*/
 
     /* Reset of all peripherals, Initializes the Flash interface and the
      * Systick. */
     HAL_Init();
 
-    /* USER CODE BEGIN Init */
-
-    /* USER CODE END Init */
 
     /* Configure the system clock */
     SystemClock_Config();
-
-    /* USER CODE BEGIN SysInit */
-
-    /* USER CODE END SysInit */
 
     /* Initialize all configured peripherals */
     MX_GPIO_Init();
     MX_TIM3_Init();
     MX_TIM4_Init();
     MX_CAN1_Init();
-    MX_CAN2_Init();
 
     /* USER CODE BEGIN 2 */
     volatile uint32_t count_left = 0;
@@ -112,9 +94,7 @@ int main(void) {
     float filtered_lws = 0;
     float filtered_rws = 0;
 
-    // Initialize IIR filter struct
-    IIR_filter left_IIR;
-    IIR_filter right_IIR;
+    // Initialize IIR filters
     IIR_filter_init(&left_IIR);
     IIR_filter_init(&right_IIR);
 
@@ -247,54 +227,6 @@ static void MX_CAN1_Init(void) {
         // Start Error
         Error_Handler();
     }
-    /* USER CODE END CAN1_Init 2 */
-}
-
-static void MX_CAN2_Init(void) {
-    /* USER CODE BEGIN CAN1_Init 0 */
-
-    /* USER CODE END CAN1_Init 0 */
-
-    /* USER CODE BEGIN CAN1_Init 1 */
-
-    /* USER CODE END CAN1_Init 1 */
-    hcan2.Instance = CAN2;
-    hcan2.Init.Prescaler = 6;
-    hcan2.Init.Mode = CAN_MODE_NORMAL;
-    hcan2.Init.SyncJumpWidth = CAN_SJW_1TQ;
-    hcan2.Init.TimeSeg1 = CAN_BS1_13TQ;
-    hcan2.Init.TimeSeg2 = CAN_BS2_2TQ;
-    hcan2.Init.TimeTriggeredMode = DISABLE;
-    hcan2.Init.AutoBusOff = ENABLE;
-    hcan2.Init.AutoWakeUp = ENABLE;
-    hcan2.Init.AutoRetransmission = ENABLE;
-    hcan2.Init.ReceiveFifoLocked = DISABLE;
-    hcan2.Init.TransmitFifoPriority = DISABLE;
-    if (HAL_CAN_Init(&hcan2) != HAL_OK) {
-        Error_Handler();
-    }
-    /* USER CODE BEGIN CAN1_Init 2 */
-    CAN_FilterTypeDef filter;
-    filter.FilterBank = 0;
-    filter.FilterMode = CAN_FILTERMODE_IDMASK;
-    filter.FilterScale = CAN_FILTERSCALE_32BIT;
-    filter.FilterIdHigh = 0x0000;
-    filter.FilterIdLow = 0x0000;
-    filter.FilterMaskIdHigh = 0x0000;
-    filter.FilterMaskIdLow = 0x0000;
-    filter.FilterFIFOAssignment = CAN_RX_FIFO0 | CAN_RX_FIFO1;
-    filter.FilterActivation = ENABLE;
-    filter.SlaveStartFilterBank = 14;
-    if (HAL_CAN_ConfigFilter(&hcan2, &filter) != HAL_OK) {
-        Error_Handler();
-    }
-
-    // Start CAN peripheral
-    if (HAL_CAN_Start(&hcan2) != HAL_OK) {
-        // Start Error
-        Error_Handler();
-    }
-    /* USER CODE END CAN1_Init 2 */
 }
 
 /**
