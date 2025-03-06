@@ -7,16 +7,24 @@
  #include <math.h>
  #include <stdint.h>
  #include "filter.h"
+
+
  
  /* --------------------------------------- Declare Global Variables and Local Functions -----------------------------------*/
  static float FIR_impulse_response[FILTER_LENGTH] = {};
  
  /* These values calculated in a seperate MATLAB script */
  
- // Raw values are b values for IIR
- static float IIR_raw_impulse[FILTER_LENGTH + 1] = {0.0898, 0.3594, 0.5391, 0.3594, 0.0898};
- // Filtered values are a values for IIR
- static float IIR_filtered_impulse[FILTER_LENGTH] = {-3.8358, 5.5208,-3.5335, 0.8486};
+//  // Raw values are b values for IIR
+//  static float IIR_raw_impulse[FILTER_LENGTH + 1] = {0.0898, 0.3594, 0.5391, 0.3594, 0.0898};
+//  // Filtered values are a values for IIR
+//  static float IIR_filtered_impulse[FILTER_LENGTH] = {0.8358, -0.5208, 0.5335, 0.8486};
+
+ // b coefficients (numerator)
+static float IIR_raw_impulse[FILTER_LENGTH + 1] = {0.0048, 0.0193, 0.0289, 0.0193, 0.0048};
+
+// a coefficients (denominator, excluding a[0] which is normalized to 1)
+static float IIR_filtered_impulse[FILTER_LENGTH] = {-1.1958, 0.6900, -0.2341, 0.0388};
  
  
  /* ----------------------------------------------------- IIR Filter -----------------------------------------------------*/
@@ -51,8 +59,8 @@
      filter->filtered_index++;
      
      // Reset index to 0 when it reaches end of buffer
-     if (filter->raw_index == FILTER_LENGTH + 1){
-         filter->raw_index = 0;
+     if (filter->filtered_index == FILTER_LENGTH){
+         filter->filtered_index = 0;
      }
  
      filter->output = 0.0f;  // Initialize filtered output sum
@@ -78,9 +86,8 @@
              sumIndex = FILTER_LENGTH - 1;  // Wrap around to end of buffer
          }
          // Standard IIR computation: a[n] * y[n-i]
-         filter->output += IIR_filtered_impulse[n] * filter->filtered[sumIndex];
+         filter->output -= IIR_filtered_impulse[n] * filter->filtered[sumIndex];
      }
-     
      return filter->output;
  }
  

@@ -28,7 +28,6 @@
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
-#define SEND_INTERVAL 10
 #define RPM_SCALE_FACTOR 1000
 /* USER CODE END PTD */
 
@@ -114,8 +113,8 @@ int main(void) {
             count_left = __HAL_TIM_GetCounter(&htim4) / 4;
             count_right = __HAL_TIM_GetCounter(&htim3) / 4;
 
-            lws = calculate_left_velocity(now - last, count_left);
-            rws = calculate_right_velocity(now - last, count_right);
+            lws = calculate_left_velocity(count_left);
+            rws = calculate_right_velocity(count_right);
 
             filtered_lws = IIR_filter_update(&left_IIR, lws);
             filtered_rws = IIR_filter_update(&right_IIR, rws);

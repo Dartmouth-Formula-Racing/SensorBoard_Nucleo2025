@@ -11,7 +11,7 @@
 
 /*---------------------- Functions for wheel speed calculating ------------------------------------ */
 
-float calculate_left_velocity(uint32_t delta_t, uint32_t count) {
+float calculate_left_velocity(uint32_t count) {
     // Static variable to store previous count value between function calls
     static uint32_t last_left_count = 0;
     
@@ -19,19 +19,19 @@ float calculate_left_velocity(uint32_t delta_t, uint32_t count) {
     volatile int32_t count_delta = (count - last_left_count);
     
     // Take absolute value of count_delta (ensuring positive result)
-    count_delta = count_delta > 0 ? count_delta : -1 * count_delta;
+    // count_delta = count_delta > 0 ? count_delta : -1 * count_delta;
 
     last_left_count = count; // Update stored count for next function call
     
     // Convert count delta to RPM:
     volatile float left_velocity =
-        ((float)count_delta / COUNTS_PER_REVOLUTION) * (1000.0 * 60.0 / delta_t);
+        ((float)count_delta / COUNTS_PER_REVOLUTION) * (1000.0 * 60.0 / SEND_INTERVAL);
     
     return left_velocity;
 }
 
 
-float calculate_right_velocity(uint32_t delta_t, uint32_t count) {
+float calculate_right_velocity(uint32_t count) {
     // Static variable to store previous count value between function calls
     static uint32_t last_right_count = 0;
     
@@ -39,13 +39,13 @@ float calculate_right_velocity(uint32_t delta_t, uint32_t count) {
     volatile int32_t count_delta = (count - last_right_count);
     
     // Take absolute value of count_delta (ensuring positive result)
-    count_delta = count_delta > 0 ? count_delta : -1 * count_delta;
+    // count_delta = count_delta > 0 ? count_delta : -1 * count_delta;
     
     last_right_count = count; // Update stored count for next function call
     
     // Convert count delta to RPM:
     volatile float right_velocity =
-        ((float)count_delta / COUNTS_PER_REVOLUTION) * (1000.0 * 60.0 / delta_t);
+        ((float)count_delta / COUNTS_PER_REVOLUTION) * (1000.0 * 60.0 / SEND_INTERVAL);
     
     return right_velocity;
 }

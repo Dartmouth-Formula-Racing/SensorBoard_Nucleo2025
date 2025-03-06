@@ -3,6 +3,7 @@
  * File: can.h
  * Description: defines all functions related to CAN communication
  */
+
 #include <stm32f7xx_hal_can.h>
 
 // Function to send input data to predefined CAN addresses

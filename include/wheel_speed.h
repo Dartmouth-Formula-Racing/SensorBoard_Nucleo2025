@@ -8,6 +8,7 @@
  #define WHEEL_SPEED_H
  
  #include <stdint.h>
+ #define SEND_INTERVAL 10
  
  /**
   * @brief Calculates the angular velocity of the left wheel
@@ -18,7 +19,7 @@
   * @param count Current encoder count value for the left wheel
   * @return float Left wheel velocity in RPM (always positive)
   */
- float calculate_left_velocity(uint32_t delta_t, uint32_t count);
+ float calculate_left_velocity(uint32_t count);
  
  /**
   * @brief Calculates the angular velocity of the right wheel
@@ -29,7 +30,7 @@
   * @param count Current encoder count value for the right wheel
   * @return float Right wheel velocity in RPM (always positive)
   */
- float calculate_right_velocity(uint32_t delta_t, uint32_t count);
+ float calculate_right_velocity(uint32_t count);
  
  
  #endif /* WHEEL_SPEED_H */
