@@ -11,7 +11,7 @@ from the front sensor board. Includes FIR, IIR, and rolling average filter imple
  #include <stdint.h>
  
  
- #define FILTER_LENGTH 4      // Number of samples used in filtering operations
+ #define FILTER_LENGTH 2      // Number of samples used in filtering operations
  #define RPM_SCALE_FACTOR 1000  // Scale factor to increase resolution of filtered RPM values
  
  

@@ -21,10 +21,10 @@
 //  static float IIR_filtered_impulse[FILTER_LENGTH] = {0.8358, -0.5208, 0.5335, 0.8486};
 
  // b coefficients (numerator)
-static float IIR_raw_impulse[FILTER_LENGTH + 1] = {0.0048, 0.0193, 0.0289, 0.0193, 0.0048};
+static float IIR_raw_impulse[FILTER_LENGTH + 1] = {0.02785977, 0.05571953, 0.02785977};
 
 // a coefficients (denominator, excluding a[0] which is normalized to 1)
-static float IIR_filtered_impulse[FILTER_LENGTH] = {-1.1958, 0.6900, -0.2341, 0.0388};
+static float IIR_filtered_impulse[FILTER_LENGTH] = {-1.47548044, 0.58691951};
  
  
  /* ----------------------------------------------------- IIR Filter -----------------------------------------------------*/

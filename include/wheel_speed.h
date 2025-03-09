@@ -1,6 +1,6 @@
 /*Author: Sasha Ries
  * Date: 1/25/25
- * File: can.c
+ * File: wheel_speed.h
  * Description: defines all functions related to wheel speed calculation
  */
 
@@ -19,7 +19,7 @@
   * @param count Current encoder count value for the left wheel
   * @return float Left wheel velocity in RPM (always positive)
   */
- float calculate_left_velocity(uint32_t count);
+ float calculate_left_velocity(uint16_t count);
  
  /**
   * @brief Calculates the angular velocity of the right wheel
@@ -30,7 +30,7 @@
   * @param count Current encoder count value for the right wheel
   * @return float Right wheel velocity in RPM (always positive)
   */
- float calculate_right_velocity(uint32_t count);
+ float calculate_right_velocity(uint16_t count);
  
  
  #endif /* WHEEL_SPEED_H */

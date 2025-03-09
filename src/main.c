@@ -85,8 +85,8 @@ int main(void) {
     MX_CAN1_Init();
 
     /* USER CODE BEGIN 2 */
-    volatile uint32_t count_left = 0;
-    volatile uint32_t count_right = 0;
+    volatile uint16_t count_left = 0;
+    volatile uint16_t count_right = 0;
     volatile uint32_t last = 0;
     volatile float lws = 0;
     volatile float rws = 0;

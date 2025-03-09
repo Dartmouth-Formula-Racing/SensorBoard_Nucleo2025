@@ -1,6 +1,6 @@
 /*Author: Sasha Ries
  * Date: 1/25/25
- * File: can.c
+ * File: wheel_speed.c
  * Description: defines all functions related to wheel speed calculation
  */
 
@@ -11,41 +11,43 @@
 
 /*---------------------- Functions for wheel speed calculating ------------------------------------ */
 
-float calculate_left_velocity(uint32_t count) {
+float calculate_left_velocity(uint16_t count) {
     // Static variable to store previous count value between function calls
-    static uint32_t last_left_count = 0;
+    static uint16_t last_left_count = 0;
+    static float left_velocity = 0.0f;
+    volatile int16_t count_delta;
     
+    if (last_left_count > count) {
+        last_left_count = count; // Update stored count for next function call
+        return left_velocity;
+    }
+
     // Calculate difference in encoder counts since last measurement
-    volatile int32_t count_delta = (count - last_left_count);
-    
-    // Take absolute value of count_delta (ensuring positive result)
-    // count_delta = count_delta > 0 ? count_delta : -1 * count_delta;
+    count_delta = count - last_left_count;
+    // Convert count delta to RPM:
+    left_velocity = ((float)count_delta / COUNTS_PER_REVOLUTION) * (1000.0 * 60.0 / SEND_INTERVAL);
 
     last_left_count = count; // Update stored count for next function call
-    
-    // Convert count delta to RPM:
-    volatile float left_velocity =
-        ((float)count_delta / COUNTS_PER_REVOLUTION) * (1000.0 * 60.0 / SEND_INTERVAL);
-    
     return left_velocity;
 }
 
 
-float calculate_right_velocity(uint32_t count) {
+float calculate_right_velocity(uint16_t count) {
     // Static variable to store previous count value between function calls
-    static uint32_t last_right_count = 0;
+    static uint16_t last_right_count = 0;
+    static float right_velocity = 0.0f;
+    int16_t count_delta;
+    
+    if (last_right_count > count) {
+        last_right_count = count; // Update stored count for next function call
+        return right_velocity;
+    }
     
     // Calculate difference in encoder counts since last measurement
-    volatile int32_t count_delta = (count - last_right_count);
-    
-    // Take absolute value of count_delta (ensuring positive result)
-    // count_delta = count_delta > 0 ? count_delta : -1 * count_delta;
-    
-    last_right_count = count; // Update stored count for next function call
-    
+    count_delta = count - last_right_count;
     // Convert count delta to RPM:
-    volatile float right_velocity =
-        ((float)count_delta / COUNTS_PER_REVOLUTION) * (1000.0 * 60.0 / SEND_INTERVAL);
-    
+    right_velocity = ((float)count_delta / COUNTS_PER_REVOLUTION) * (1000.0 * 60.0 / SEND_INTERVAL);
+
+    last_right_count = count; // Update stored count for next function call
     return right_velocity;
 }
